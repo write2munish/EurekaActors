@@ -26,6 +26,7 @@ Run the following command in the ServiceHosting
 sbt clean compile dist
 
 Go to target/ServiceHosting-dist
+
 bin/start org.akka.essentials.service.ServiceInit
 
 ## ServiceConsumer
@@ -34,5 +35,6 @@ Run the following command in the ServiceConsumer
 sbt clean compile dist
 
 Go to target/ServiceConsumer-dist
+
 bin/start org.akka.essentials.service.ServiceInit
 
