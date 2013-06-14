@@ -15,29 +15,19 @@ import akka.actor.Props;
 import akka.kernel.Bootable;
 import akka.pattern.AskTimeoutException;
 
-import com.netflix.appinfo.ApplicationInfoManager;
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.appinfo.InstanceInfo.InstanceStatus;
-import com.netflix.appinfo.MyDataCenterInstanceConfig;
-import com.netflix.config.DynamicPropertyFactory;
-import com.netflix.discovery.DefaultEurekaClientConfig;
-import com.netflix.discovery.DiscoveryManager;
 import com.typesafe.config.ConfigFactory;
 
 public class ServiceInit implements Bootable {
-
-	private static final DynamicPropertyFactory configInstance = com.netflix.config.DynamicPropertyFactory
-			.getInstance();
 
 	ActorSystem _system = ActorSystem.apply("serviceProvider", ConfigFactory
 			.load().getConfig("serviceApp"));
 
 	ActorRef serviceA;
+	ActorRef registerEureka;
 
 	@Override
 	public void shutdown() {
-		unRegisterWithEureka();
-		if (!serviceA.isTerminated()) {
+		if (!registerEureka.isTerminated()) {
 			// trying graceful stop to the actor
 			try {
 				Future<Boolean> stopped = gracefulStop(serviceA,
@@ -54,49 +44,10 @@ public class ServiceInit implements Bootable {
 
 	@Override
 	public void startup() {
-		 registerWithEureka();
+		registerEureka = _system.actorOf(new Props(RegisterEureka.class),
+				"registerEureka");
 		serviceA = _system.actorOf(new Props(ServiceA.class), "serviceA");
 	}
 
-	private void registerWithEureka() {
-		// Register with Eureka
-		DiscoveryManager.getInstance().initComponent(
-				new MyDataCenterInstanceConfig(),
-				new DefaultEurekaClientConfig());
-		// set the service instance UP
-		ApplicationInfoManager.getInstance().setInstanceStatus(
-				InstanceStatus.UP);
-
-		String vipAddress = configInstance.getStringProperty(
-				"eureka.vipAddress", "/user/serviceA").get();
-		InstanceInfo nextServerInfo = null;
-
-		while (nextServerInfo == null) {
-			try {
-				nextServerInfo = DiscoveryManager.getInstance()
-						.getDiscoveryClient()
-						.getNextServerFromEureka(vipAddress, false);
-			} catch (Throwable e) {
-				System.out
-						.println("Waiting for service to register with eureka..");
-
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			}
-		}
-		System.out.println("Service started and ready to process requests..");
-
-	}
-
-	private void unRegisterWithEureka() {
-		// Un register from eureka.
-		DiscoveryManager.getInstance().shutdownComponent();
-		System.out.println("Shutting down server.");
-	}
 }
 
