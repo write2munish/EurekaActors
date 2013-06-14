@@ -56,5 +56,5 @@ object Dependency {
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % V.Akka
   val akkaremote = "com.typesafe.akka" %% "akka-remote"  % V.Akka
   val eurekaClient = "com.netflix.eureka" % "eureka-client" % "1.1.97"
-  val serviceprovider = "org.akka.essentials.ServiceProvider" % "ServiceProvider" % "0.0.1"
+  val serviceprovider = "org.akka.essentials.ServiceProvider" % "ServiceProvider" % "0.0.2"
 }
