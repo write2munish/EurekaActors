@@ -1,7 +1,7 @@
 EurekaActors
 ============
 
-When building services based on the remote actor model, there is a need for dynamic discovery of new remote actor nodes or even loadbalance among the remote actor nodes.
+When building services based on the remote actor model, there is a need for dynamic discovery of new remote actor nodes or even load balance among the existing remote actor nodes.
 
 This is a working sample of using Netflix Eureka to load balance, dynamic discovery and handling fault tolerance for remote actor nodes.
 
